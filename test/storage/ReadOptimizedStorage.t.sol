@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "src/storage/IStorage.sol";
-import "src/storage/StaticStorage.sol";
+import "src/storage/ReadOptimizedStorage.sol";
 
-contract StaticStorageTest is Test {
-    using StaticStorage for IStorage;
+contract ReadOptimizedStorageTest is Test {
+    using ReadOptimizedStorage for IStorage;
 
     function setUp() public {
         IStorage key0 = IStorage.wrap(keccak256("setup0"));
@@ -32,7 +32,7 @@ contract StaticStorageTest is Test {
     }
 
     // @sucess_test
-    function test_static_storage() public {
+    function test_read_optimized_storage() public {
         // Arrange
         IStorage key = IStorage.wrap(keccak256("key"));
         bytes32 value = keccak256("value");
@@ -45,7 +45,7 @@ contract StaticStorageTest is Test {
     }
 
     // @sucess_test
-    function test_static_storage_multi_write() public {
+    function test_read_optimized_storage_multi_write() public {
         // Arrange
         IStorage key0 = IStorage.wrap(keccak256("key0"));
         IStorage key1 = IStorage.wrap(keccak256("key1"));
@@ -63,7 +63,7 @@ contract StaticStorageTest is Test {
     }
 
     // @sucess_test
-    function test_static_storage_read() public {
+    function test_read_optimized_storage_read() public {
         // Arrange
         IStorage key = IStorage.wrap(keccak256("setup0"));
 
@@ -75,7 +75,7 @@ contract StaticStorageTest is Test {
     }
 
     // @sucess_test
-    function test_static_storage_read_multi() public {
+    function test_read_optimized_storage_read_multi() public {
         IStorage key0 = IStorage.wrap(keccak256("setup0"));
         IStorage key1 = IStorage.wrap(keccak256("setup1"));
         IStorage key2 = IStorage.wrap(keccak256("setup2"));

@@ -3,16 +3,17 @@ pragma solidity ^0.8.0;
 
 import "src/storage/IStorage.sol";
 
-/* @title StaticStorage
- * @dev Library for storing data in a static storage contract. The idea is to store data in a contract code and when
+/*
+ * @title ReadOptimizedStorage
+ * @dev Library for storing data in a read-optimized storage contract. The idea is to store data in a contract code and when
  * reading the data, copy it to transient storage. This is useful when you need to store data that is not going to
  * change often but you need to read it frequently.
  */
-library StaticStorage {
-    bytes32 private constant _STATIC_STORAGE = keccak256("src.repository.StaticStorage.v1");
+library ReadOptimizedStorage {
+    bytes32 private constant _READ_OPTIMIZED_STORAGE = keccak256("src.repository.ReadOptimizedStorage.v1");
 
     /*
-     * @dev Read a uint256 value from the static storage
+     * @dev Read a uint256 value from the read-optimized storage
      * @param _key The key to read
      * @return value The value stored in the key
      */
@@ -31,7 +32,7 @@ library StaticStorage {
     }
 
     /*
-     * @dev Read an address value from the static storage
+     * @dev Read an address value from the read-optimized storage
      * @param _key The key to read
      * @return value The value stored in the key
      */
@@ -50,7 +51,7 @@ library StaticStorage {
     }
 
     /*
-     * @dev Read a bytes32 value from the static storage
+     * @dev Read a bytes32 value from the read-optimized storage
      * @param _key The key to read
      * @return value The value stored in the key
      */
@@ -69,7 +70,7 @@ library StaticStorage {
     }
 
     /*
-     * @dev Write a uint256 value to the static storage
+     * @dev Write a uint256 value to the read-optimized storage
      * @param _key The key to write
      * @param _value The value to write
      */
@@ -78,7 +79,7 @@ library StaticStorage {
     }
 
     /*
-     * @dev Write an address value to the static storage
+     * @dev Write an address value to the read-optimized storage
      * @param _key The key to write
      * @param _value The value to write
      */
@@ -87,7 +88,7 @@ library StaticStorage {
     }
 
     /*
-     * @dev Write a bytes32 value to the static storage
+     * @dev Write a bytes32 value to the read-optimized storage
      * @param _key The key to write
      * @param _value The value to write
      */
@@ -96,11 +97,11 @@ library StaticStorage {
     }
 
     /*
-     * @dev Copy the data from the static storage to the transient storage
+     * @dev Copy the data from the read-optimized storage to the transient storage
      * @return true if the data was copied, false otherwise
      */
     function copyToTransientStorage() private returns (bool) {
-        bytes32 location = _STATIC_STORAGE;
+        bytes32 location = _READ_OPTIMIZED_STORAGE;
         address storageContract;
         assembly {
             storageContract := tload(location)
@@ -159,7 +160,7 @@ library StaticStorage {
         bool found = false;
 
         uint256 size;
-        bytes32 location = _STATIC_STORAGE;
+        bytes32 location = _READ_OPTIMIZED_STORAGE;
         assembly {
             storageContract := sload(location)
             size := extcodesize(storageContract)
@@ -237,7 +238,7 @@ library StaticStorage {
             } else if (codeLength < 3584) {
                 prefix = hex"608060405234801561000f575f80fd5b50610e038061001d5f395ff3fe";
             } else {
-                revert("Do not store too much data in static storage");
+                revert("Do not store too much data in read-optimized storage");
             }
 
             assembly {
