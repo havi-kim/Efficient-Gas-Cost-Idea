@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IStorage.sol";
+import "src/storage/IStorage.sol";
 
 library ExternalStorage {
-    IEternalStorage private constant _STORAGE_CONTRACT =
-        IEternalStorage(address(0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f));
+    IExternalStorage private constant _STORAGE_CONTRACT =
+        IExternalStorage(address(0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f));
 
     function writeUint(IStorage _key, uint256 _value) internal {
         _STORAGE_CONTRACT.writeUint(_key, _value);
@@ -36,7 +36,7 @@ library ExternalStorage {
     }
 }
 
-interface IEternalStorage {
+interface IExternalStorage {
     function writeUint(IStorage _key, uint256 _value) external;
     function readUint(IStorage _key) external view returns (uint256 value);
     function writeAddress(IStorage _key, address _value) external;
