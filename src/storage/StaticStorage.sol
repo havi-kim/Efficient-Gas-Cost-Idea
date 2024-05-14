@@ -3,9 +3,19 @@ pragma solidity ^0.8.0;
 
 import "src/storage/IStorage.sol";
 
+/* @title StaticStorage
+ * @dev Library for storing data in a static storage contract. The idea is to store data in a contract code and when
+ * reading the data, copy it to transient storage. This is useful when you need to store data that is not going to
+ * change often but you need to read it frequently.
+ */
 library StaticStorage {
     bytes32 private constant _STATIC_STORAGE = keccak256("src.repository.StaticStorage.v1");
 
+    /*
+     * @dev Read a uint256 value from the static storage
+     * @param _key The key to read
+     * @return value The value stored in the key
+     */
     function readUint(IStorage _key) internal returns (uint256 value) {
         assembly {
             value := tload(_key)
@@ -20,6 +30,11 @@ library StaticStorage {
         }
     }
 
+    /*
+     * @dev Read an address value from the static storage
+     * @param _key The key to read
+     * @return value The value stored in the key
+     */
     function readAddress(IStorage _key) internal returns (address value) {
         assembly {
             value := tload(_key)
@@ -34,6 +49,11 @@ library StaticStorage {
         }
     }
 
+    /*
+     * @dev Read a bytes32 value from the static storage
+     * @param _key The key to read
+     * @return value The value stored in the key
+     */
     function readBytes32(IStorage _key) internal returns (bytes32 value) {
         assembly {
             value := tload(_key)
@@ -48,18 +68,37 @@ library StaticStorage {
         }
     }
 
+    /*
+     * @dev Write a uint256 value to the static storage
+     * @param _key The key to write
+     * @param _value The value to write
+     */
     function writeUint(IStorage _key, uint256 _value) internal {
         writeBytes32(_key, bytes32(_value));
     }
 
+    /*
+     * @dev Write an address value to the static storage
+     * @param _key The key to write
+     * @param _value The value to write
+     */
     function writeAddress(IStorage _key, address _value) internal {
         writeBytes32(_key, bytes32(uint256(uint160(_value))));
     }
 
+    /*
+     * @dev Write a bytes32 value to the static storage
+     * @param _key The key to write
+     * @param _value The value to write
+     */
     function writeBytes32(IStorage _key, bytes32 _value) internal {
         store(_key, _value);
     }
 
+    /*
+     * @dev Copy the data from the static storage to the transient storage
+     * @return true if the data was copied, false otherwise
+     */
     function copyToTransientStorage() private returns (bool) {
         bytes32 location = _STATIC_STORAGE;
         address storageContract;
@@ -88,14 +127,13 @@ library StaticStorage {
 
         (bytes32[] memory keys, bytes32[] memory values) = abi.decode(code, (bytes32[], bytes32[]));
 
-
         assembly {
             let keysLength := mload(keys)
             let keysPtr := add(keys, 0x20)
             let valuesPtr := add(values, 0x20)
             let end := add(keysPtr, mul(keysLength, 0x20))
 
-            for { } lt(keysPtr, end) {
+            for {} lt(keysPtr, end) {
                 keysPtr := add(keysPtr, 0x20)
                 valuesPtr := add(valuesPtr, 0x20)
             } {
@@ -108,6 +146,11 @@ library StaticStorage {
         return true;
     }
 
+    /*
+     * @dev Store a key-value pair in the other storage contract
+     * @param _key The key to store
+     * @param _value The value to store
+     */
     function store(IStorage _key, bytes32 _value) private {
         address storageContract;
         bytes32[] memory keys;
@@ -158,7 +201,7 @@ library StaticStorage {
             let valuesPtr := add(values, 0x20)
             let end := add(keysPtr, mul(keysLength, 0x20))
 
-            for { } lt(keysPtr, end) {
+            for {} lt(keysPtr, end) {
                 keysPtr := add(keysPtr, 0x20)
                 valuesPtr := add(valuesPtr, 0x20)
             } {
@@ -169,13 +212,11 @@ library StaticStorage {
         }
     }
 
-    function readStorageContract() private view returns (address storageContract) {
-        bytes32 location = _STATIC_STORAGE;
-        assembly {
-            storageContract := sload(location)
-        }
-    }
-
+    /*
+     * @dev Create the contract creation code for the new storage contract
+     * @param _code The code to store in the new storage contract
+     * @return result The contract creation code
+     */
     function createContractCreationCode(bytes memory _code) private pure returns (bytes memory result) {
         unchecked {
             bytes memory prefix;
@@ -226,7 +267,12 @@ library StaticStorage {
         }
     }
 
-    function copyBytes32Array(bytes32[] memory source) internal pure returns (bytes32[] memory) {
+    /*
+     * @dev Copy a bytes32 array
+     * @param source The source array to copy
+     * @return destination The copied array
+     */
+    function copyBytes32Array(bytes32[] memory source) private pure returns (bytes32[] memory) {
         bytes32[] memory destination = new bytes32[](source.length + 1);
         assembly {
             let length := mload(source)
